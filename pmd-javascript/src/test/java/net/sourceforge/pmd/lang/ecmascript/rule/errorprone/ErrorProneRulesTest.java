@@ -15,5 +15,7 @@ public class ErrorProneRulesTest extends SimpleAggregatorTst {
         addRule(RULESET, "AvoidTrailingComma");
         addRule(RULESET, "EqualComparison");
         addRule(RULESET, "InnaccurateNumericLiteral");
+        addRule(RULESET, "EmptyIfStmt");
+
     }
 }

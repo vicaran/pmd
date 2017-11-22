@@ -129,4 +129,39 @@ var z = 1.12345678901234567; // Not good
         </example>
     </rule>
 
+    <rule name="EmptyIfStmt"
+          language="ecmascript"
+          since="0.1"
+          message="Avoid empty 'if' statements"
+          class="net.sourceforge.pmd.lang.rule.XPathRule"
+          externalInfoUrl="${pmd.website.baseurl}/pmd_rules_ecmascript_errorprone.html#emptyifstmt">
+        <description>
+            Empty If Statement finds instances where a condition is checked but nothing is done about it.
+        </description>
+        <priority>3</priority>
+        <properties>
+            <property name="xpath">
+                <value>
+                    <![CDATA[
+//IfStatement/Statement
+ [EmptyStatement or Block[count(*) = 0]]
+]]>
+                </value>
+            </property>
+        </properties>
+        <example>
+            <![CDATA[
+function Foo(x){
+
+  if (x == 0) {
+   // empty!
+  }
+
+}
+]]>
+        </example>
+    </rule>
+
+
+
 </ruleset>
