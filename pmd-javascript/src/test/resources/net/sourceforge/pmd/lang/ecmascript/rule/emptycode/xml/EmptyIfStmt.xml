@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://pmd.sourceforge.net/rule-tests http://pmd.sourceforge.net/rule-tests_1_0_0.xsd">
     <test-code>
         <description><![CDATA[
-Empty, block
+Empty if, block
      ]]></description>
         <expected-problems>1</expected-problems>
         <code><![CDATA[
@@ -18,7 +18,7 @@ if (true) {
 
     <test-code>
         <description><![CDATA[
-Non-Empty, block
+Non-Empty if, block
      ]]></description>
         <expected-problems>0</expected-problems>
         <code><![CDATA[
@@ -32,7 +32,7 @@ console.log("this is a non-empty block")
 
     <test-code>
         <description><![CDATA[
-non-empty, complex block
+non-empty if, complex block
      ]]></description>
         <expected-problems>0</expected-problems>
         <code><![CDATA[
@@ -47,7 +47,7 @@ non-empty, complex block
 
     <test-code>
         <description><![CDATA[
-inline non-empty, block
+inline non-empty if, block
      ]]></description>
         <expected-problems>0</expected-problems>
         <code><![CDATA[
@@ -59,7 +59,7 @@ if (true) return false;
 
     <test-code>
         <description><![CDATA[
-inline non-empty, complex block
+inline non-empty if, complex block
      ]]></description>
         <expected-problems>0</expected-problems>
         <code><![CDATA[
@@ -71,7 +71,7 @@ if ( textures.length > 0 ) output.textures = textures;
 
     <test-code>
         <description><![CDATA[
-inline empty, block
+inline empty if, block
      ]]></description>
         <expected-problems>1</expected-problems>
         <code><![CDATA[
@@ -82,7 +82,7 @@ if (true)
 
     <test-code>
         <description><![CDATA[
-inline empty, complex block
+inline empty if, complex block
      ]]></description>
         <expected-problems>1</expected-problems>
         <code><![CDATA[

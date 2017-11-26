@@ -14,7 +14,7 @@
           since="0.1"
           message="Avoid empty 'if' statements"
           class="net.sourceforge.pmd.lang.ecmascript.rule.emptycode.EmptyIfStmt"
-          externalInfoUrl="${pmd.website.baseurl}/pmd_rules_ecmascript_errorprone.html#emptyifstmt">
+          externalInfoUrl="${pmd.website.baseurl}/pmd_rules_ecmascript_emptycode.html#emptyifstmt">
         <description>
             Empty If Statement finds instances where a condition is checked but nothing is done about it.
         </description>
@@ -26,6 +26,38 @@ function Foo(x){
   if (x == 0) {
    // empty!
   }
+}
+]]>
+        </example>
+    </rule>
+
+    <rule name="EmptyCatchBlock"
+          language="ecmascript"
+          since="0.1"
+          message="Avoid empty 'catch' statements"
+          class="net.sourceforge.pmd.lang.ecmascript.rule.emptycode.EmptyCatchBlock"
+          externalInfoUrl="${pmd.website.baseurl}/pmd_rules_ecmascript_emptycode.html#emptycatchblock">
+        <description>
+            Empty Catch Block finds instances where an exception is caught, but nothing is done.
+            In most circumstances, this swallows an exception which should either be acted on or reported.
+        </description>
+        <priority>1</priority>
+        <example>
+            <![CDATA[
+function Foo(x){
+
+  if (x == 0) {
+   // empty!
+  }
+}
+
+function Foo(x){
+    try {
+        adddlert("Hello, World!");
+    }
+    catch(err) {
+        // empty!
+    }
 }
 ]]>
         </example>
