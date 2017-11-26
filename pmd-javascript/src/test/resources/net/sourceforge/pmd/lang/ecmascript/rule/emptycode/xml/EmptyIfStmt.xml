@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test-data
+        xmlns="http://pmd.sourceforge.net/rule-tests"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://pmd.sourceforge.net/rule-tests http://pmd.sourceforge.net/rule-tests_1_0_0.xsd">
+    <test-code>
+        <description><![CDATA[
+Empty, block
+     ]]></description>
+        <expected-problems>1</expected-problems>
+        <code><![CDATA[
+if (true) {
+}
+     ]]></code>
+        <source-type>ecmascript 3</source-type>
+    </test-code>
+
+
+    <test-code>
+        <description><![CDATA[
+Non-Empty, block
+     ]]></description>
+        <expected-problems>0</expected-problems>
+        <code><![CDATA[
+if (true) {
+console.log("this is a non-empty block")
+}
+     ]]></code>
+        <source-type>ecmascript 3</source-type>
+    </test-code>
+
+
+    <test-code>
+        <description><![CDATA[
+non-empty, complex block
+     ]]></description>
+        <expected-problems>0</expected-problems>
+        <code><![CDATA[
+    if ( object !== undefined ) {
+
+				return object;
+
+			}
+     ]]></code>
+        <source-type>ecmascript 3</source-type>
+    </test-code>
+
+    <test-code>
+        <description><![CDATA[
+inline non-empty, block
+     ]]></description>
+        <expected-problems>0</expected-problems>
+        <code><![CDATA[
+if (true) return false;
+     ]]></code>
+        <source-type>ecmascript 3</source-type>
+    </test-code>
+
+
+    <test-code>
+        <description><![CDATA[
+inline non-empty, complex block
+     ]]></description>
+        <expected-problems>0</expected-problems>
+        <code><![CDATA[
+if ( textures.length > 0 ) output.textures = textures;
+     ]]></code>
+        <source-type>ecmascript 3</source-type>
+    </test-code>
+
+
+    <test-code>
+        <description><![CDATA[
+inline empty, block
+     ]]></description>
+        <expected-problems>1</expected-problems>
+        <code><![CDATA[
+if (true)
+     ]]></code>
+        <source-type>ecmascript 3</source-type>
+    </test-code>
+
+    <test-code>
+        <description><![CDATA[
+inline empty, complex block
+     ]]></description>
+        <expected-problems>1</expected-problems>
+        <code><![CDATA[
+if (myVariablle == true && yourVariable != (true || false))
+     ]]></code>
+        <source-type>ecmascript 3</source-type>
+    </test-code>
+
+</test-data>

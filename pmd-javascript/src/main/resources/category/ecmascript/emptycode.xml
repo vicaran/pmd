@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+
+<ruleset name="Empty Code"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+
+    <description>
+        Rules to detect empty blocks of code
+    </description>
+
+    <rule name="EmptyIfStmt"
+          language="ecmascript"
+          since="0.1"
+          message="Avoid empty 'if' statements"
+          class="net.sourceforge.pmd.lang.ecmascript.rule.emptycode.EmptyIfStmt"
+          externalInfoUrl="${pmd.website.baseurl}/pmd_rules_ecmascript_errorprone.html#emptyifstmt">
+        <description>
+            Empty If Statement finds instances where a condition is checked but nothing is done about it.
+        </description>
+        <priority>1</priority>
+        <example>
+            <![CDATA[
+function Foo(x){
+
+  if (x == 0) {
+   // empty!
+  }
+}
+]]>
+        </example>
+    </rule>
+</ruleset>

@@ -13,7 +13,8 @@ keywords: Error Prone, AvoidTrailingComma, EqualComparison, InnaccurateNumericLi
 
 **Priority:** High (1)
 
-This rule helps improve code portability due to differences in browser treatment of trailing commas in object or array literals.
+This rule helps improve code portability due to differences in browser treatment of trailing commas in
+            object or array literals.
 
 ```
 //ObjectLiteral[$allowObjectLiteral = "false" and @TrailingComma = 'true']
@@ -52,7 +53,7 @@ function(arg) {
 **Priority:** Medium (3)
 
 Using == in condition may lead to unexpected results, as the variables are automatically casted to be of the
-same type. The === operator avoids the casting.
+            same type. The === operator avoids the casting.
 
 ```
 //InfixExpression[(@Image = "==" or @Image = "!=")
@@ -96,7 +97,7 @@ if (someVar != 3) {
 **Priority:** Medium High (2)
 
 The numeric literal will have a different value at runtime, which can happen if you provide too much
-precision in a floating point number.  This may result in numeric calculations being in error.
+            precision in a floating point number. This may result in numeric calculations being in error.
 
 ```
 //NumberLiteral[

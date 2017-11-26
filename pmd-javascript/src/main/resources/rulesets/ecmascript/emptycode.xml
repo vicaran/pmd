@@ -8,7 +8,7 @@
         The Empty Code ruleset .....
     </description>
 
-    <rule ref="category/ecmascript/errorprone.xml/EmptyIfStmt" deprecated="false" />
+    <rule ref="category/ecmascript/emptycode.xml/EmptyIfStmt"/>
 
 
 </ruleset>
