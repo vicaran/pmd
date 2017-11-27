@@ -6,7 +6,7 @@
          xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
 
     <description>
-Rules which enforce a specific coding style.
+        Rules which enforce a specific coding style.
     </description>
 
 
@@ -17,14 +17,14 @@ Rules which enforce a specific coding style.
           class="net.sourceforge.pmd.lang.rule.XPathRule"
           externalInfoUrl="${pmd.website.baseurl}/pmd_rules_ecmascript_codestyle.html#assignmentinoperand">
         <description>
-Avoid assignments in operands; this can make code more complicated and harder to read.  This is sometime
-indicative of the bug where the assignment operator '=' was used instead of the equality operator '=='.
+            Avoid assignments in operands; this can make code more complicated and harder to read. This is sometime
+            indicative of the bug where the assignment operator '=' was used instead of the equality operator '=='.
         </description>
         <priority>2</priority>
         <properties>
             <property name="xpath">
                 <value>
-<![CDATA[
+                    <![CDATA[
     //IfStatement[$allowIf = "false"]/child::node()[1]/descendant-or-self::node()[self::Assignment or self::UnaryExpression[$allowIncrementDecrement = "false" and (@Image = "--" or @Image = "++")]]
 |
     //WhileLoop[$allowWhile = "false"]/child::node()[1]/descendant-or-self::node()[self::Assignment or self::UnaryExpression[$allowIncrementDecrement = "false" and (@Image = "--" or @Image = "++")]]
@@ -39,15 +39,21 @@ indicative of the bug where the assignment operator '=' was used instead of the 
 ]]>
                 </value>
             </property>
-            <property name="allowIf" type="Boolean" value="false" description="Allow assignment within the conditional expression of an if statement" />
-            <property name="allowFor" type="Boolean" value="false" description="Allow assignment within the conditional expression of a for statement" />
-            <property name="allowWhile" type="Boolean" value="false" description="Allow assignment within the conditional expression of a while statement" />
-            <property name="allowTernary" type="Boolean" value="false" description="Allow assignment within the conditional expression of a ternary operator" />
-            <property name="allowTernaryResults" type="Boolean" value="false" description="Allow assignment within the result expressions of a ternary operator" />
-            <property name="allowIncrementDecrement" type="Boolean" value="false" description="Allow increment or decrement operators within the conditional expression of an if, for, or while statement" />
+            <property name="allowIf" type="Boolean" value="false"
+                      description="Allow assignment within the conditional expression of an if statement"/>
+            <property name="allowFor" type="Boolean" value="false"
+                      description="Allow assignment within the conditional expression of a for statement"/>
+            <property name="allowWhile" type="Boolean" value="false"
+                      description="Allow assignment within the conditional expression of a while statement"/>
+            <property name="allowTernary" type="Boolean" value="false"
+                      description="Allow assignment within the conditional expression of a ternary operator"/>
+            <property name="allowTernaryResults" type="Boolean" value="false"
+                      description="Allow assignment within the result expressions of a ternary operator"/>
+            <property name="allowIncrementDecrement" type="Boolean" value="false"
+                      description="Allow increment or decrement operators within the conditional expression of an if, for, or while statement"/>
         </properties>
         <example>
-<![CDATA[
+            <![CDATA[
 var x = 2;
 // Bad
 if ((x = getX()) == 3) {
@@ -68,13 +74,13 @@ function getX() {
           class="net.sourceforge.pmd.lang.rule.XPathRule"
           externalInfoUrl="${pmd.website.baseurl}/pmd_rules_ecmascript_codestyle.html#forloopsmustusebraces">
         <description>
-Avoid using 'for' statements without using curly braces.
+            Avoid using 'for' statements without using curly braces.
         </description>
         <priority>3</priority>
         <properties>
             <property name="xpath">
                 <value>
-<![CDATA[
+                    <![CDATA[
 //ForLoop[not(child::Scope)]
 |
 //ForInLoop[not(child::Scope)]
@@ -83,7 +89,7 @@ Avoid using 'for' statements without using curly braces.
             </property>
         </properties>
         <example>
-<![CDATA[
+            <![CDATA[
 // Ok
 for (var i = 0; i < 42; i++) {
     foo();
@@ -103,13 +109,13 @@ for (var i = 0; i < 42; i++)
           class="net.sourceforge.pmd.lang.rule.XPathRule"
           externalInfoUrl="${pmd.website.baseurl}/pmd_rules_ecmascript_codestyle.html#ifelsestmtsmustusebraces">
         <description>
-Avoid using if..else statements without using curly braces.
+            Avoid using if..else statements without using curly braces.
         </description>
         <priority>3</priority>
         <properties>
             <property name="xpath">
                 <value>
-<![CDATA[
+                    <![CDATA[
 //ExpressionStatement[parent::IfStatement[@Else = "true"]]
    [not(child::Scope)]
    [not(child::IfStatement)]
@@ -118,7 +124,7 @@ Avoid using if..else statements without using curly braces.
             </property>
         </properties>
         <example>
-<![CDATA[
+            <![CDATA[
 // Ok
 if (foo) {
     x++;
@@ -142,20 +148,20 @@ else
           class="net.sourceforge.pmd.lang.rule.XPathRule"
           externalInfoUrl="${pmd.website.baseurl}/pmd_rules_ecmascript_codestyle.html#ifstmtsmustusebraces">
         <description>
-Avoid using if statements without using curly braces.
+            Avoid using if statements without using curly braces.
         </description>
         <priority>3</priority>
         <properties>
             <property name="xpath">
                 <value>
-<![CDATA[
+                    <![CDATA[
 //IfStatement[@Else = "false" and not(child::Scope)]
 ]]>
                 </value>
             </property>
         </properties>
         <example>
-<![CDATA[
+            <![CDATA[
 // Ok
 if (foo) {
     x++;
@@ -175,23 +181,23 @@ if (foo)
           class="net.sourceforge.pmd.lang.rule.XPathRule"
           externalInfoUrl="${pmd.website.baseurl}/pmd_rules_ecmascript_codestyle.html#noelsereturn">
         <description>
-The else block in a if-else-construct is unnecessary if the `if` block contains a return.
-Then the content of the else block can be put outside.
+            The else block in a if-else-construct is unnecessary if the `if` block contains a return.
+            Then the content of the else block can be put outside.
 
-See also: &lt;http://eslint.org/docs/rules/no-else-return>
+            See also: &lt;http://eslint.org/docs/rules/no-else-return>
         </description>
         <priority>3</priority>
         <properties>
             <property name="xpath">
                 <value>
-<![CDATA[
+                    <![CDATA[
 //IfStatement[@Else="true"][Scope[1]/ReturnStatement]
 ]]>
                 </value>
             </property>
         </properties>
         <example>
-<![CDATA[
+            <![CDATA[
 // Bad:
 if (x) {
     return y;
@@ -215,15 +221,15 @@ return z;
           class="net.sourceforge.pmd.lang.rule.XPathRule"
           externalInfoUrl="${pmd.website.baseurl}/pmd_rules_ecmascript_codestyle.html#unnecessaryblock">
         <description>
-An unnecessary Block is present.  Such Blocks are often used in other languages to
-introduce a new variable scope.  Blocks do not behave like this in ECMAScipt, and using them can
-be misleading.  Considering removing this unnecessary Block.
+            An unnecessary Block is present. Such Blocks are often used in other languages to
+            introduce a new variable scope. Blocks do not behave like this in ECMAScipt, and using them can
+            be misleading. Considering removing this unnecessary Block.
         </description>
         <priority>3</priority>
         <properties>
             <property name="xpath">
                 <value>
-<![CDATA[
+                    <![CDATA[
 //Block[not(parent::FunctionNode or parent::IfStatement or parent::ForLoop or parent::ForInLoop
     or parent::WhileLoop or parent::DoLoop or parent::TryStatement or parent::CatchClause)]
 |
@@ -234,7 +240,7 @@ be misleading.  Considering removing this unnecessary Block.
             </property>
         </properties>
         <example>
-<![CDATA[
+            <![CDATA[
 if (foo) {
     // Ok
 }
@@ -258,14 +264,14 @@ if (bar) {
         <properties>
             <property name="xpath">
                 <value>
-<![CDATA[
+                    <![CDATA[
 //ParenthesizedExpression/ParenthesizedExpression
 ]]>
                 </value>
             </property>
         </properties>
         <example>
-<![CDATA[
+            <![CDATA[
 var x = 1; // Ok
 var y = (1 + 1); // Ok
 var z = ((1 + 1)); // Bad
@@ -280,14 +286,14 @@ var z = ((1 + 1)); // Bad
           class="net.sourceforge.pmd.lang.rule.XPathRule"
           externalInfoUrl="${pmd.website.baseurl}/pmd_rules_ecmascript_codestyle.html#unreachablecode">
         <description>
-A 'return', 'break', 'continue', or 'throw' statement should be the last in a block. Statements after these
-will never execute.  This is a bug, or extremely poor style.
+            A 'return', 'break', 'continue', or 'throw' statement should be the last in a block. Statements after these
+            will never execute. This is a bug, or extremely poor style.
         </description>
         <priority>1</priority>
         <properties>
             <property name="xpath">
                 <value>
-<![CDATA[
+                    <![CDATA[
     //ReturnStatement[following-sibling::node()]
 |
     //ContinueStatement[following-sibling::node()]
@@ -300,7 +306,7 @@ will never execute.  This is a bug, or extremely poor style.
             </property>
         </properties>
         <example>
-<![CDATA[
+            <![CDATA[
 // Ok
 function foo() {
    return 1;
@@ -322,20 +328,20 @@ function bar() {
           class="net.sourceforge.pmd.lang.rule.XPathRule"
           externalInfoUrl="${pmd.website.baseurl}/pmd_rules_ecmascript_codestyle.html#whileloopsmustusebraces">
         <description>
-Avoid using 'while' statements without using curly braces.
+            Avoid using 'while' statements without using curly braces.
         </description>
         <priority>3</priority>
         <properties>
             <property name="xpath">
                 <value>
-<![CDATA[
+                    <![CDATA[
 //WhileLoop[not(child::Scope)]
 ]]>
                 </value>
             </property>
         </properties>
         <example>
-<![CDATA[
+            <![CDATA[
 // Ok
 while (true) {
     x++;
@@ -347,5 +353,49 @@ while (true)
 ]]>
         </example>
     </rule>
+    <rule name="ShortVariable"
+          language="ecmascript"
+          since="0.1"
+          message="Avoid short variables"
+          class="net.sourceforge.pmd.lang.ecmascript.rule.codestyle.ShortVariableRule"
+          externalInfoUrl="${pmd.website.baseurl}/pmd_rules_ecmascript_codestyle.html#shortvariable">
+        <description>
+            Fields, local variables, or parameter names that are very short are not helpful to the reader.
+        </description>
+        <priority>1</priority>
+        <example>
+            <![CDATA[
+function Something(as) {                        // formal arg - too short
+    var q = 15;                                 // local var - too short
+    for (Integer i : numbers) {             // not a violation (inside 'for-each' loop)
+        r += q;
+    }
+}
+]]>
+        </example>
+    </rule>
+
+    <rule name="LongVariable"
+          language="ecmascript"
+          since="0.1"
+          message="Avoid long variables"
+          class="net.sourceforge.pmd.lang.ecmascript.rule.codestyle.LongVariableRule"
+          externalInfoUrl="${pmd.website.baseurl}/pmd_rules_ecmascript_codestyle.html#longvariable">
+        <description>
+            Fields, local variables, or parameter names that are very long are not helpful to the reader.
+        </description>
+        <priority>1</priority>
+        <example>
+            <![CDATA[
+function Something(veryLongInputParameter) {                        // formal arg - too long
+    var veryLongLocalVariableName = 15;                                 // local var - too long
+    for (Integer veryLongNameForAnIndex : veryLongInputParameter) {             //  A violation even inside 'for-each' loop - too long
+        veryLongLocalVariableName += veryLongNameForAnIndex;
+    }
+}
+]]>
+        </example>
+    </rule>
+
 
 </ruleset>

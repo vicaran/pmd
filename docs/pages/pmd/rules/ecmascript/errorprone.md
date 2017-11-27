@@ -5,7 +5,7 @@ permalink: pmd_rules_ecmascript_errorprone.html
 folder: pmd/rules/ecmascript
 sidebaractiveurl: /pmd_rules_ecmascript.html
 editmepath: ../pmd-javascript/src/main/resources/category/ecmascript/errorprone.xml
-keywords: Error Prone, AvoidTrailingComma, EqualComparison, InnaccurateNumericLiteral
+keywords: Error Prone, AvoidTrailingComma, EqualComparison, InnaccurateNumericLiteral, ReturnFromFinallyBlock
 ---
 ## AvoidTrailingComma
 
@@ -13,8 +13,7 @@ keywords: Error Prone, AvoidTrailingComma, EqualComparison, InnaccurateNumericLi
 
 **Priority:** High (1)
 
-This rule helps improve code portability due to differences in browser treatment of trailing commas in
-            object or array literals.
+This rule helps improve code portability due to differences in browser treatment of trailing commas in object or array literals.
 
 ```
 //ObjectLiteral[$allowObjectLiteral = "false" and @TrailingComma = 'true']
@@ -53,7 +52,7 @@ function(arg) {
 **Priority:** Medium (3)
 
 Using == in condition may lead to unexpected results, as the variables are automatically casted to be of the
-            same type. The === operator avoids the casting.
+same type. The === operator avoids the casting.
 
 ```
 //InfixExpression[(@Image = "==" or @Image = "!=")
@@ -97,7 +96,7 @@ if (someVar != 3) {
 **Priority:** Medium High (2)
 
 The numeric literal will have a different value at runtime, which can happen if you provide too much
-            precision in a floating point number. This may result in numeric calculations being in error.
+precision in a floating point number.  This may result in numeric calculations being in error.
 
 ```
 //NumberLiteral[
@@ -122,5 +121,44 @@ var z = 1.12345678901234567; // Not good
 **Use this rule by referencing it:**
 ``` xml
 <rule ref="category/ecmascript/errorprone.xml/InnaccurateNumericLiteral" />
+```
+
+## ReturnFromFinallyBlock
+
+**Since:** PMD 5.0
+
+**Priority:** Medium High (2)
+
+Avoid returning from a finally block, this can discard exceptions.
+
+**This rule is defined by the following Java class:** [net.sourceforge.pmd.lang.ecmascript.rule.errorprone.ReturnFromFinallyBlockRule](https://github.com/pmd/pmd/blob/master/pmd-javascript/src/main/java/net/sourceforge/pmd/lang/ecmascript/rule/errorprone/ReturnFromFinallyBlockRule.java)
+
+**Example(s):**
+
+``` javascript
+// We expect this function to return 1;
+(() => {
+    try {
+        return 1; // 1 is returned but suspended until finally block ends
+    } catch(err) {
+        return 2;
+    } finally {
+        return 3; // 3 is returned before 1, which we did not expect
+    }
+})();
+// > 3
+```
+
+**This rule has the following properties:**
+
+|Name|Default Value|Description|
+|----|-------------|-----------|
+|rhinoLanguageVersion|VERSION_DEFAULT|Specifies the Rhino Language Version to use for parsing.  Defaults to Rhino default.|
+|recordingLocalJsDocComments|true|Specifies that JsDoc comments are produced in the AST.|
+|recordingComments|true|Specifies that comments are produced in the AST.|
+
+**Use this rule by referencing it:**
+``` xml
+<rule ref="category/ecmascript/errorprone.xml/ReturnFromFinallyBlock" />
 ```
 

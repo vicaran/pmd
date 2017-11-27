@@ -5,7 +5,7 @@ permalink: pmd_rules_ecmascript_codestyle.html
 folder: pmd/rules/ecmascript
 sidebaractiveurl: /pmd_rules_ecmascript.html
 editmepath: ../pmd-javascript/src/main/resources/category/ecmascript/codestyle.xml
-keywords: Code Style, AssignmentInOperand, ForLoopsMustUseBraces, IfElseStmtsMustUseBraces, IfStmtsMustUseBraces, NoElseReturn, UnnecessaryBlock, UnnecessaryParentheses, UnreachableCode, WhileLoopsMustUseBraces
+keywords: Code Style, AssignmentInOperand, AvoidDollarSigns, ForLoopsMustUseBraces, FunctionNamingConventions, IfElseStmtsMustUseBraces, IfStmtsMustUseBraces, NoElseReturn, UnnecessaryBlock, UnnecessaryParentheses, UnreachableCode, WhileLoopsMustUseBraces
 ---
 ## AssignmentInOperand
 
@@ -60,6 +60,36 @@ function getX() {
 <rule ref="category/ecmascript/codestyle.xml/AssignmentInOperand" />
 ```
 
+## AvoidDollarSigns
+
+**Since:** PMD 1.5
+
+**Priority:** Medium (3)
+
+Avoid using dollar signs in variable/functions names.
+
+**This rule is defined by the following Java class:** [net.sourceforge.pmd.lang.ecmascript.rule.codestyle.AvoidDollarSignsRule](https://github.com/pmd/pmd/blob/master/pmd-javascript/src/main/java/net/sourceforge/pmd/lang/ecmascript/rule/codestyle/AvoidDollarSignsRule.java)
+
+**Example(s):**
+
+``` javascript
+function ko$o() {  // not a recommended name
+}
+```
+
+**This rule has the following properties:**
+
+|Name|Default Value|Description|
+|----|-------------|-----------|
+|rhinoLanguageVersion|VERSION_DEFAULT|Specifies the Rhino Language Version to use for parsing.  Defaults to Rhino default.|
+|recordingLocalJsDocComments|true|Specifies that JsDoc comments are produced in the AST.|
+|recordingComments|true|Specifies that comments are produced in the AST.|
+
+**Use this rule by referencing it:**
+``` xml
+<rule ref="category/ecmascript/codestyle.xml/AvoidDollarSigns" />
+```
+
 ## ForLoopsMustUseBraces
 
 **Since:** PMD 5.0
@@ -90,6 +120,36 @@ for (var i = 0; i < 42; i++)
 **Use this rule by referencing it:**
 ``` xml
 <rule ref="category/ecmascript/codestyle.xml/ForLoopsMustUseBraces" />
+```
+
+## FunctionNamingConventions
+
+**Since:** PMD 1.2
+
+**Priority:** High (1)
+
+Function names should always begin with a lower case character, and should not contain underscores.
+
+**This rule is defined by the following Java class:** [net.sourceforge.pmd.lang.ecmascript.rule.codestyle.FunctionNamingConventionsRule](https://github.com/pmd/pmd/blob/master/pmd-javascript/src/main/java/net/sourceforge/pmd/lang/ecmascript/rule/codestyle/FunctionNamingConventionsRule.java)
+
+**Example(s):**
+
+``` javascript
+function getData() {
+}
+```
+
+**This rule has the following properties:**
+
+|Name|Default Value|Description|
+|----|-------------|-----------|
+|rhinoLanguageVersion|VERSION_DEFAULT|Specifies the Rhino Language Version to use for parsing.  Defaults to Rhino default.|
+|recordingLocalJsDocComments|true|Specifies that JsDoc comments are produced in the AST.|
+|recordingComments|true|Specifies that comments are produced in the AST.|
+
+**Use this rule by referencing it:**
+``` xml
+<rule ref="category/ecmascript/codestyle.xml/FunctionNamingConventions" />
 ```
 
 ## IfElseStmtsMustUseBraces

@@ -38,6 +38,29 @@ catch(err) {
 
 
 
+    <test-code>
+        <description><![CDATA[
+Correct from sourcecode, non empty catch block
+     ]]></description>
+        <expected-problems>0</expected-problems>
+        <code><![CDATA[
+try {
+
+    json = JSON.parse( text );
+
+    } catch ( error ) {
+
+    if ( onError !== undefined ) onError( error );
+
+    console.error( 'THREE:ObjectLoader: Can\'t parse ' + url + '.', error.message );
+
+    return;
+
+    }
+     ]]></code>
+        <source-type>ecmascript 3</source-type>
+    </test-code>
+
 
 
 </test-data>

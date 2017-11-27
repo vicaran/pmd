@@ -16,11 +16,8 @@ public class EmptyIfStmt extends AbstractEcmascriptRule {
     public Object visit(ASTIfStatement functionNode, Object data) {
 
         if (!Objects.equals(functionNode.getThen().toString(), "ExpressionStatement")) {
-
             if (functionNode.getThen().findDescendantsOfType(ASTExpressionStatement.class).isEmpty()) {
-
                 if (Objects.equals(functionNode.getThen().toString(), "EmptyStatement")) {
-
                     if (functionNode.getThen().getEndColumn() - functionNode.getThen().getBeginColumn() <= 1) {
                         addViolation(data, functionNode);
                         return super.visit(functionNode, data);

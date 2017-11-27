@@ -6,7 +6,7 @@
 
     <test-code>
         <description><![CDATA[
-Long Variable declaration
+Long Variable declaration in ShortVariable test
      ]]></description>
         <expected-problems>0</expected-problems>
         <code><![CDATA[
@@ -18,7 +18,7 @@ var variableLong = 3;
 
     <test-code>
         <description><![CDATA[
-Short Variable declaration
+Short Variable declaration in ShortVariable test
      ]]></description>
         <expected-problems>1</expected-problems>
         <code><![CDATA[
@@ -30,7 +30,7 @@ var s = 3;
 
     <test-code>
         <description><![CDATA[
-Short Variable declaration in For Loop
+Short Variable declaration in for loop in ShortVariable test
      ]]></description>
         <expected-problems>0</expected-problems>
         <code><![CDATA[
@@ -41,7 +41,3 @@ for(var i = 0; i < 3; i++){
         <source-type>ecmascript 3</source-type>
     </test-code>
 </test-data>
-
-
-
-

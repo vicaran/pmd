@@ -127,14 +127,4 @@ else
      ]]></code>
         <source-type>ecmascript 3</source-type>
     </test-code>
-
-    <test-code>
-        <description><![CDATA[
-Empty if statement     ]]></description>
-        <expected-problems>0</expected-problems>
-        <code><![CDATA[
-if (true){}
-     ]]></code>
-        <source-type>ecmascript 3</source-type>
-    </test-code>
 </test-data>
