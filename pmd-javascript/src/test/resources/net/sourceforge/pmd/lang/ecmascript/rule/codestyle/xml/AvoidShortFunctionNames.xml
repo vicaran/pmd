@@ -31,5 +31,31 @@ function myFunction(a, b) {
         <source-type>ecmascript 3</source-type>
     </test-code>
 
+    <test-code>
+        <description><![CDATA[
+Function declaration without a name and with space
+     ]]></description>
+        <expected-problems>0</expected-problems>
+        <code><![CDATA[
+function (a, b) {
+    return a * b;
+}
+     ]]></code>
+        <source-type>ecmascript 3</source-type>
+    </test-code>
+
+    <test-code>
+        <description><![CDATA[
+Function declaration without a name and without space
+     ]]></description>
+        <expected-problems>0</expected-problems>
+        <code><![CDATA[
+function(a, b) {
+    return a * b;
+}
+     ]]></code>
+        <source-type>ecmascript 3</source-type>
+    </test-code>
+
 
 </test-data>
