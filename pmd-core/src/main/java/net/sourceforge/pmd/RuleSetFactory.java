@@ -4,17 +4,13 @@
 
 package net.sourceforge.pmd;
 
-import static net.sourceforge.pmd.properties.PropertyDescriptorField.DEFAULT_VALUE;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
@@ -26,10 +22,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang3.StringUtils;
-import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -38,14 +32,10 @@ import org.xml.sax.SAXException;
 import net.sourceforge.pmd.RuleSet.RuleSetBuilder;
 import net.sourceforge.pmd.lang.Language;
 import net.sourceforge.pmd.lang.LanguageRegistry;
-import net.sourceforge.pmd.lang.LanguageVersion;
 import net.sourceforge.pmd.lang.rule.MockRule;
 import net.sourceforge.pmd.lang.rule.RuleReference;
 import net.sourceforge.pmd.lang.rule.XPathRule;
-import net.sourceforge.pmd.properties.PropertyDescriptor;
-import net.sourceforge.pmd.properties.PropertyDescriptorField;
-import net.sourceforge.pmd.properties.PropertyDescriptorUtil;
-import net.sourceforge.pmd.properties.builders.PropertyDescriptorExternalBuilder;
+import net.sourceforge.pmd.rules.RuleFactory;
 import net.sourceforge.pmd.util.ResourceLoader;
 
 /**
@@ -62,9 +52,6 @@ public class RuleSetFactory {
     private static final String DESCRIPTION = "description";
     private static final String UNEXPECTED_ELEMENT = "Unexpected element <";
     private static final String PRIORITY = "priority";
-    private static final String FOR_RULE = "' for Rule ";
-    private static final String MESSAGE = "message";
-    private static final String EXTERNAL_INFO_URL = "externalInfoUrl";
 
     private final ResourceLoader resourceLoader;
     private final RulePriority minimumPriority;
@@ -73,6 +60,16 @@ public class RuleSetFactory {
 
     public RuleSetFactory() {
         this(new ResourceLoader(), RulePriority.LOW, false, true);
+    }
+
+    /**
+     * @deprecated Use {@link #RuleSetFactory(ResourceLoader, RulePriority, boolean, boolean)} with
+     * {@link ResourceLoader} instead of a {@link ClassLoader}.
+     */
+    @Deprecated // to be removed with PMD 7.0.0.
+    public RuleSetFactory(final ClassLoader classLoader, final RulePriority minimumPriority,
+            final boolean warnDeprecated, final boolean enableCompatibility) {
+        this(new ResourceLoader(classLoader), minimumPriority, warnDeprecated, enableCompatibility);
     }
 
     public RuleSetFactory(final ResourceLoader resourceLoader, final RulePriority minimumPriority,
@@ -380,6 +377,8 @@ public class RuleSetFactory {
                 ruleSetBuilder.withDescription("Missing description");
             }
 
+            ruleSetBuilder.filterRulesByPriority(minimumPriority);
+
             return ruleSetBuilder.build();
         } catch (ClassNotFoundException cnfe) {
             return classNotFoundProblem(cnfe);
@@ -496,22 +495,46 @@ public class RuleSetFactory {
         }
         final RuleSetReference ruleSetReference = new RuleSetReference(ref, true, excludedRulesCheck);
 
-        RuleSetFactory ruleSetFactory = new RuleSetFactory(this, warnDeprecated);
+        // load the ruleset with minimum priority low, so that we get all rules, to be able to exclude any rule
+        // minimum priority will be applied again, before constructing the final ruleset
+        RuleSetFactory ruleSetFactory = new RuleSetFactory(resourceLoader, RulePriority.LOW, warnDeprecated, this.compatibilityFilter != null);
         RuleSet otherRuleSet = ruleSetFactory.createRuleSet(RuleSetReferenceId.parse(ref).get(0));
+        List<RuleReference> potentialRules = new ArrayList<>();
+        int countDeprecated = 0;
         for (Rule rule : otherRuleSet.getRules()) {
             excludedRulesCheck.remove(rule.getName());
-            if (!ruleSetReference.getExcludes().contains(rule.getName()) && !rule.isDeprecated()) {
+            if (!ruleSetReference.getExcludes().contains(rule.getName())) {
                 RuleReference ruleReference = new RuleReference();
                 ruleReference.setRuleSetReference(ruleSetReference);
                 ruleReference.setRule(rule);
-                ruleSetBuilder.addRuleIfNotExists(ruleReference);
-
                 // override the priority
                 if (priority != null) {
                     ruleReference.setPriority(RulePriority.valueOf(Integer.parseInt(priority)));
                 }
+
+                if (rule.isDeprecated()) {
+                    countDeprecated++;
+                }
+                potentialRules.add(ruleReference);
             }
         }
+
+        boolean rulesetDeprecated = false;
+        if (potentialRules.size() == countDeprecated) {
+            // all rules in the ruleset have been deprecated - the ruleset itself is considered to be deprecated
+            rulesetDeprecated = true;
+            LOG.warning("The RuleSet " + ref + " has been deprecated.");
+        }
+
+        for (RuleReference r : potentialRules) {
+            if (rulesetDeprecated || !r.getRule().isDeprecated()) {
+                // add the rule, if either the ruleset itself is deprecated (then we add all rules)
+                // or if the rule is not deprecated (in that case, the ruleset might contain deprecated as well
+                // as valid references to rules)
+                ruleSetBuilder.addRuleIfNotExists(r);
+            }
+        }
+
         if (!excludedRulesCheck.isEmpty()) {
             throw new IllegalArgumentException(
                     "Unable to exclude rules " + excludedRulesCheck + "; perhaps the rule name is mispelled?");
@@ -539,117 +562,12 @@ public class RuleSetFactory {
                 && !isRuleName(ruleElement, ruleSetReferenceId.getRuleName())) {
             return;
         }
-
-        String attribute = ruleElement.getAttribute("class");
-        if (attribute == null || "".equals(attribute)) {
-            throw new IllegalArgumentException("The 'class' field of rule can't be null, nor empty.");
-        }
-        Rule rule = (Rule) Class.forName(attribute).newInstance();
-        rule.setName(ruleElement.getAttribute("name"));
-
-        if (ruleElement.hasAttribute("language")) {
-            String languageName = ruleElement.getAttribute("language");
-            Language language = LanguageRegistry.findLanguageByTerseName(languageName);
-            if (language == null) {
-                throw new IllegalArgumentException("Unknown Language '" + languageName + FOR_RULE + rule.getName()
-                        + ", supported Languages are "
-                        + LanguageRegistry.commaSeparatedTerseNamesForLanguage(LanguageRegistry.findWithRuleSupport()));
-            }
-            rule.setLanguage(language);
-        }
-
-        Language language = rule.getLanguage();
-        if (language == null) {
-            throw new IllegalArgumentException(
-                    "Rule " + rule.getName() + " does not have a Language; missing 'language' attribute?");
-        }
-
-        if (ruleElement.hasAttribute("minimumLanguageVersion")) {
-            String minimumLanguageVersionName = ruleElement.getAttribute("minimumLanguageVersion");
-            LanguageVersion minimumLanguageVersion = language.getVersion(minimumLanguageVersionName);
-            if (minimumLanguageVersion == null) {
-                throw new IllegalArgumentException("Unknown minimum Language Version '" + minimumLanguageVersionName
-                        + "' for Language '" + language.getTerseName() + FOR_RULE + rule.getName()
-                        + "; supported Language Versions are: "
-                        + LanguageRegistry.commaSeparatedTerseNamesForLanguageVersion(language.getVersions()));
-            }
-            rule.setMinimumLanguageVersion(minimumLanguageVersion);
-        }
-
-        if (ruleElement.hasAttribute("maximumLanguageVersion")) {
-            String maximumLanguageVersionName = ruleElement.getAttribute("maximumLanguageVersion");
-            LanguageVersion maximumLanguageVersion = language.getVersion(maximumLanguageVersionName);
-            if (maximumLanguageVersion == null) {
-                throw new IllegalArgumentException("Unknown maximum Language Version '" + maximumLanguageVersionName
-                        + "' for Language '" + language.getTerseName() + FOR_RULE + rule.getName()
-                        + "; supported Language Versions are: "
-                        + LanguageRegistry.commaSeparatedTerseNamesForLanguageVersion(language.getVersions()));
-            }
-            rule.setMaximumLanguageVersion(maximumLanguageVersion);
-        }
-
-        if (rule.getMinimumLanguageVersion() != null && rule.getMaximumLanguageVersion() != null) {
-            throw new IllegalArgumentException(
-                    "The minimum Language Version '" + rule.getMinimumLanguageVersion().getTerseName()
-                            + "' must be prior to the maximum Language Version '"
-                            + rule.getMaximumLanguageVersion().getTerseName() + FOR_RULE + rule.getName()
-                            + "; perhaps swap them around?");
-        }
-
-        String since = ruleElement.getAttribute("since");
-        if (StringUtils.isNotBlank(since)) {
-            rule.setSince(since);
-        }
-        rule.setMessage(ruleElement.getAttribute(MESSAGE));
+        Rule rule = new RuleFactory().buildRule(ruleElement);
         rule.setRuleSetName(ruleSetBuilder.getName());
-        rule.setExternalInfoUrl(ruleElement.getAttribute(EXTERNAL_INFO_URL));
 
-        if (hasAttributeSetTrue(ruleElement, "deprecated")) {
-            rule.setDeprecated(true);
-        }
-
-        if (hasAttributeSetTrue(ruleElement, "dfa")) {
-            rule.setUsesDFA();
-        }
-
-        if (hasAttributeSetTrue(ruleElement, "typeResolution")) {
-            rule.setUsesTypeResolution();
-        }
-
-        if (hasAttributeSetTrue(ruleElement, "multifile")) {
-            // rule.setUsesMultifile(); // TODO, once that's safe
-        }
-
-        final NodeList nodeList = ruleElement.getChildNodes();
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Node node = nodeList.item(i);
-            if (node.getNodeType() != Node.ELEMENT_NODE) {
-                continue;
-            }
-            String nodeName = node.getNodeName();
-            if (DESCRIPTION.equals(nodeName)) {
-                rule.setDescription(parseTextNode(node));
-            } else if ("example".equals(nodeName)) {
-                rule.addExample(parseTextNode(node));
-            } else if (PRIORITY.equals(nodeName)) {
-                rule.setPriority(RulePriority.valueOf(Integer.parseInt(parseTextNode(node).trim())));
-            } else if ("properties".equals(nodeName)) {
-                parsePropertiesNode(rule, node);
-            } else {
-                throw new IllegalArgumentException(UNEXPECTED_ELEMENT + nodeName
-                        + "> encountered as child of <rule> element for Rule " + rule.getName());
-            }
-
-        }
-        if (StringUtils.isNotBlank(ruleSetReferenceId.getRuleName())
-                || rule.getPriority().compareTo(minimumPriority) <= 0) {
-            ruleSetBuilder.addRule(rule);
-        }
+        ruleSetBuilder.addRule(rule);
     }
 
-    private static boolean hasAttributeSetTrue(Element element, String attributeId) {
-        return element.hasAttribute(attributeId) && "true".equalsIgnoreCase(element.getAttribute(attributeId));
-    }
 
     /**
      * Parse a rule node as a RuleReference. A RuleReference is a single Rule
@@ -679,7 +597,9 @@ public class RuleSetFactory {
             return;
         }
 
-        RuleSetFactory ruleSetFactory = new RuleSetFactory(this, warnDeprecated);
+        // load the ruleset with minimum priority low, so that we get all rules, to be able to exclude any rule
+        // minimum priority will be applied again, before constructing the final ruleset
+        RuleSetFactory ruleSetFactory = new RuleSetFactory(resourceLoader, RulePriority.LOW, warnDeprecated, this.compatibilityFilter != null);
 
         boolean isSameRuleSet = false;
         RuleSetReferenceId otherRuleSetReferenceId = RuleSetReferenceId.parse(ref).get(0);
@@ -722,45 +642,12 @@ public class RuleSetFactory {
 
         RuleSetReference ruleSetReference = new RuleSetReference(otherRuleSetReferenceId.getRuleSetFileName(), false);
 
-        RuleReference ruleReference = new RuleReference();
+        RuleReference ruleReference = new RuleFactory().decorateRule(referencedRule, ruleElement);
         ruleReference.setRuleSetReference(ruleSetReference);
-        ruleReference.setRule(referencedRule);
 
-        if (ruleElement.hasAttribute("deprecated")) {
-            ruleReference.setDeprecated(Boolean.parseBoolean(ruleElement.getAttribute("deprecated")));
-        }
-        if (ruleElement.hasAttribute("name")) {
-            ruleReference.setName(ruleElement.getAttribute("name"));
-        }
-        if (ruleElement.hasAttribute(MESSAGE)) {
-            ruleReference.setMessage(ruleElement.getAttribute(MESSAGE));
-        }
-        if (ruleElement.hasAttribute(EXTERNAL_INFO_URL)) {
-            ruleReference.setExternalInfoUrl(ruleElement.getAttribute(EXTERNAL_INFO_URL));
-        }
-        for (int i = 0; i < ruleElement.getChildNodes().getLength(); i++) {
-            Node node = ruleElement.getChildNodes().item(i);
-            if (node.getNodeType() == Node.ELEMENT_NODE) {
-                if (node.getNodeName().equals(DESCRIPTION)) {
-                    ruleReference.setDescription(parseTextNode(node));
-                } else if (node.getNodeName().equals("example")) {
-                    ruleReference.addExample(parseTextNode(node));
-                } else if (node.getNodeName().equals(PRIORITY)) {
-                    ruleReference.setPriority(RulePriority.valueOf(Integer.parseInt(parseTextNode(node))));
-                } else if (node.getNodeName().equals("properties")) {
-                    parsePropertiesNode(ruleReference, node);
-                } else {
-                    throw new IllegalArgumentException(UNEXPECTED_ELEMENT + node.getNodeName()
-                            + "> encountered as child of <rule> element for Rule " + ruleReference.getName());
-                }
-            }
-        }
 
-        if (StringUtils.isNotBlank(ruleSetReferenceId.getRuleName())
-                || referencedRule.getPriority().compareTo(minimumPriority) <= 0) {
-            if (withDeprecatedRuleReferences || !isSameRuleSet || !ruleReference.isDeprecated()) {
-                ruleSetBuilder.addRuleReplaceIfExists(ruleReference);
-            }
+        if (withDeprecatedRuleReferences || !isSameRuleSet || !ruleReference.isDeprecated()) {
+            ruleSetBuilder.addRuleReplaceIfExists(ruleReference);
         }
     }
 
@@ -797,110 +684,6 @@ public class RuleSetFactory {
 
     private static boolean isElementNode(Node node, String name) {
         return node.getNodeType() == Node.ELEMENT_NODE && node.getNodeName().equals(name);
-    }
-
-    /**
-     * Parse a properties node.
-     *
-     * @param rule
-     *            The Rule to which the properties should be added.
-     * @param propertiesNode
-     *            Must be a properties element node.
-     */
-    private static void parsePropertiesNode(Rule rule, Node propertiesNode) {
-        for (int i = 0; i < propertiesNode.getChildNodes().getLength(); i++) {
-            Node node = propertiesNode.getChildNodes().item(i);
-            if (isElementNode(node, "property")) {
-                parsePropertyNodeBR(rule, node);
-            }
-        }
-    }
-
-    private static String valueFrom(Node parentNode) {
-
-        final NodeList nodeList = parentNode.getChildNodes();
-
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Node node = nodeList.item(i);
-            if (isElementNode(node, "value")) {
-                return parseTextNode(node);
-            }
-        }
-        return null;
-    }
-
-
-    /**
-     * Sets the value of a property.
-     *
-     * @param rule     The rule which has the property
-     * @param desc     The property descriptor
-     * @param strValue The string value of the property, converted to a T
-     * @param <T>      The type of values of the property descriptor
-     */
-    private static <T> void setValue(Rule rule, PropertyDescriptor<T> desc, String strValue) {
-        T realValue = desc.valueFrom(strValue);
-        rule.setProperty(desc, realValue);
-    }
-
-
-    /**
-     * Parse a property node.
-     *
-     * @param rule         The Rule to which the property should be added.
-     * @param propertyNode Must be a property element node.
-     */
-    private static void parsePropertyNodeBR(Rule rule, Node propertyNode) {
-
-        Element propertyElement = (Element) propertyNode;
-        String typeId = propertyElement.getAttribute(PropertyDescriptorField.TYPE.attributeName());
-        String strValue = propertyElement.getAttribute(DEFAULT_VALUE.attributeName());
-        if (StringUtils.isBlank(strValue)) {
-            strValue = valueFrom(propertyElement);
-        }
-
-        // Setting of existing property, or defining a new property?
-        if (StringUtils.isBlank(typeId)) {
-            String name = propertyElement.getAttribute(PropertyDescriptorField.NAME.attributeName());
-
-            PropertyDescriptor<?> propertyDescriptor = rule.getPropertyDescriptor(name);
-            if (propertyDescriptor == null) {
-                throw new IllegalArgumentException(
-                        "Cannot set non-existant property '" + name + "' on Rule " + rule.getName());
-            } else {
-                setValue(rule, propertyDescriptor, strValue);
-            }
-            return;
-        }
-
-        PropertyDescriptorExternalBuilder<?> pdFactory = PropertyDescriptorUtil.factoryFor(typeId);
-        if (pdFactory == null) {
-            throw new RuntimeException("No property descriptor factory for type: " + typeId);
-        }
-
-        Map<PropertyDescriptorField, String> values = new HashMap<>();
-        NamedNodeMap atts = propertyElement.getAttributes();
-
-        // populate a map of values for an individual descriptor
-        for (int i = 0; i < atts.getLength(); i++) {
-            Attr a = (Attr) atts.item(i);
-            values.put(PropertyDescriptorField.getConstant(a.getName()), a.getValue());
-        }
-
-        if (StringUtils.isBlank(values.get(DEFAULT_VALUE))) {
-            NodeList children = propertyElement.getElementsByTagName(DEFAULT_VALUE.attributeName());
-            if (children.getLength() == 1) {
-                values.put(DEFAULT_VALUE, children.item(0).getTextContent());
-            } else {
-                throw new RuntimeException("No value defined!");
-            }
-        }
-
-        // casting is not pretty but prevents the interface from having this method
-        PropertyDescriptor<?> desc = pdFactory.build(values);
-
-        rule.definePropertyDescriptor(desc);
-        setValue(rule, desc, strValue);
     }
 
     /**

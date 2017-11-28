@@ -13,12 +13,14 @@ This is a major release.
 ### Table Of Contents
 
 * [New and noteworthy](#new-and-noteworthy)
+    *   [New Rule Designer](#new-rule-designer)
     *   [Java 9 support](#java-9-support)
     *   [Revamped Apex CPD](#revamped-apex-cpd)
     *   [Java Type Resolution](#java-type-resolution)
     *   [Metrics Framework](#metrics-framework)
     *   [Error Reporting](#error-reporting)
     *   [Apex Rule Suppression](#apex-rule-suppression)
+    *   [Rule Categories](#rule-categories)
     *   [New Rules](#new-rules)
     *   [Modified Rules](#modified-rules)
     *   [Deprecated Rules](#deprecated-rules)
@@ -32,12 +34,23 @@ This is a major release.
 
 ### New and noteworthy
 
+#### New Rule Designer
+
+Thanks to [Clément Fournier](https://github.com/oowekyala), we now have a new rule designer GUI, which
+is based on JavaFX. It replaces the old designer and can be started via
+
+*   `bin/run.sh designer` (on Unix-like platform such as Linux and Mac OS X)
+*   `bin\\designer.bat` (on Windows)
+
+Note: At least Java8 is required for the designer. The old designer is still available
+as `designerold` but will be removed with the next major release.
+
 #### Java 9 support
 
 The Java grammar has been updated to support analyzing Java 9 projects:
 
 *   private methods in interfaces are possible
-*   The underscore "_" is considered an invalid identifier
+*   The underscore "\_" is considered an invalid identifier
 *   Diamond operator for anonymous classes
 *   The module declarations in `module-info.java` can be parsed
 *   Concise try-with-resources statements are supported
@@ -130,89 +143,139 @@ Supported syntax includes:
 
 Notice this last scenario is slightly different to the Java syntax. This is due to differences in the Apex grammar for annotations.
 
+#### Rule Categories
+
+All built-in rules have been sorted into one of eight categories:
+
+1.  **Best Practices**: These are rules which enforce generally accepted best practices.
+2.  **Code Style**: These rules enforce a specific coding style.
+3.  **Design**: Rules that help you discover design issues.
+4.  **Documentation**: These rules are related to code documentation.
+5.  **Error Prone**: Rules to detect constructs that are either broken, extremely confusing or prone to runtime errors.
+6.  **Multithreading**: These are rules that flag issues when dealing with multiple threads of execution.
+7.  **Performance**: Rules that flag suboptimal code.
+8.  **Security**: Rules that flag potential security flaws.
+
+These categories help you to find rules and figure out the relevance and impact for your project.
+
+All rules have been moved accordingly, e.g. the rule "JumbledIncrementer", which was previously defined in the
+ruleset "java-basic" has now been moved to the "Error Prone" category. The new rule reference to be used is
+`<rule ref="category/java/errorprone.xml/JumbledIncrementer"/>`.
+
+The old rulesets like "java-basic" are still kept for backwards-compatibility but will be removed eventually.
+The rule reference documentation has been updated to reflect these changes.
+
 #### New Rules
 
-*   The rule `NcssCount` (ruleset `java-codesize`) replaces the three rules "NcssConstructorCount", "NcssMethodCount",
+*   The new Java rule `NcssCount` (category `design`) replaces the three rules "NcssConstructorCount", "NcssMethodCount",
     and "NcssTypeCount". The new rule uses the metrics framework to achieve the same. It has two properties, to
     define the report level for method and class sizes separately. Constructors and methods are considered the same.
 
-*   The new rule `DoNotExtendJavaLangThrowable` (ruleset `java-strictexception`) is a companion for the
+*   The new Java rule `DoNotExtendJavaLangThrowable` (category `errorprone`) is a companion for the
     `java-strictexception.xml/DoNotExtendJavaLangError`, detecting direct extensions of `java.lang.Throwable`.
 
-*   The new rule `ForLoopCanBeForeach` (ruleset `java-migration`) helps to identify those for-loops that can
+*   The new Java rule `ForLoopCanBeForeach` (category `errorprone`) helps to identify those for-loops that can
     be safely refactored into for-each-loops available since java 1.5.
 
-*   The new rule `AvoidDirectAccessTriggerMap` (ruleset `apex-style`) helps to identify direct array access to triggers,
-    which can produce bugs by iether accessing non-existing indexes, or them leaving out. You should use for-each-loops
+*   The new Apex rule `AvoidDirectAccessTriggerMap` (category `errorprone`) helps to identify direct array access to triggers,
+    which can produce bugs by either accessing non-existing indexes, or leaving them out. You should use for-each-loops
     instead.
 
-*   The new rule `AvoidHardcodingId` (ruleset `apex-style`) detects hardcoded strings that look like identifiers
+*   The new Apex rule `AvoidHardcodingId` (category `errorprone`) detects hardcoded strings that look like identifiers
     and flags them. Record IDs change between environments, meaning hardcoded ids are bound to fail under a different
     setup.
 
-*   A whole new ruleset has been added to Apex, `apex-empty`. It currently migrates 5 rules from the equivalent
-    `java-empty` ruleset for Apex. The ruleset includes:
+*   A whole bunch of new rules has been added to Apex. They all fit into the category `errorprone`.
+    The 5 rules are migrated for Apex from the equivalent Java rules and include:
     * `EmptyCatchBlock` to detect catch blocks completely ignoring exceptions.
     * `EmptyIfStmt` for if blocks with no content, that can be safely removed.
     * `EmptyTryOrFinallyBlock` for empty try / finally blocks that can be safely removed.
     * `EmptyWhileStmt` for empty while loops that can be safely removed.
     * `EmptyStatementBlock` for empty code blocks that can be safely removed.
 
-*   The new rule `AvoidSoslInLoops` (ruleset `apex-performance`) is the companion of the old
-    `apex-performance/AvoidSoqlInLoops` rule, flagging SOSL (Salesforce Object Search Language) queries when within
+*   The new Apex rule `AvoidSoslInLoops` (category `performance`) is the companion of the old
+    `AvoidSoqlInLoops` rule, flagging SOSL (Salesforce Object Search Language) queries when within
     loops, to avoid governor issues, and hitting the database too often.
 
 #### Modified Rules
 
-*   The rule `UnnecessaryFinalModifier` (ruleset `java-unnecessarycode`) has been merged into the rule
-    `UnnecessaryModifier` of the same ruleset. As part of this, the rule  has been revamped to detect more cases.
+*   The Java rule `UnnecessaryFinalModifier` (category `codestyle`, former ruleset `java-unnecessarycode`)
+    has been merged into the rule `UnnecessaryModifier`. As part of this, the rule  has been revamped to detect more cases.
     It will now flag anonymous class' methods marked as final (can't be overridden, so it's pointless), along with
     final methods overridden / defined within enum instances. It will also flag `final` modifiers on try-with-resources.
 
-*   The rule `UnnecessaryParentheses` (ruleset `java-controversial`) has been merged into `UselessParentheses`
-    (ruleset `java-unnecessary`). The rule covers all scenarios previously covered by either rule.
+*   The Java rule `UnnecessaryParentheses` (category `codestyle`, former ruleset `java-controversial`)
+    has been merged into `UselessParentheses` (category `codestyle`, former ruleset `java-unnecessary`).
+    The rule covers all scenarios previously covered by either rule.
 
-*   The rule `UncommentedEmptyConstructor` (ruleset `java-design`) will now ignore empty constructors annotated with
-    `javax.inject.Inject`.
+*   The Java rule `UncommentedEmptyConstructor` (category `documentation`, former ruleset `java-design`)
+     will now ignore empty constructors annotated with `javax.inject.Inject`.
 
-*   The rule `AbstractClassWithoutAnyMethod` (ruleset `java-design`)  will now ignore classes annotated with
-    `com.google.auto.value.AutoValue`.
+*   The Java rule `AbstractClassWithoutAnyMethod` (category `bestpractices`, former ruleset `java-design`)
+    will now ignore classes annotated with `com.google.auto.value.AutoValue`.
 
-*   The rule `GodClass` (ruleset `java-design`) has been revamped to use the new metrics framework.
+*   The Java rule `GodClass` (category `design', former ruleset `java-design`) has been revamped to use
+    the new metrics framework.
 
-*   The rule `LooseCoupling` (ruleset `java-coupling`) has been replaced by the typeresolution-based implementation.
+*   The Java rule `LooseCoupling` (category `bestpractices`, former ruleset `java-coupling`) has been
+    replaced by the typeresolution-based implementation.
 
-*   The rule `CloneMethodMustImplementCloneable` (ruleset `java-clone`) has been replaced by the typeresolution-based
+*   The Java rule `CloneMethodMustImplementCloneable` (category `errorprone`, former ruleset `java-clone`)
+    has been replaced by the typeresolution-based
     implementation and is now able to detect cases if a class implements or extends a Cloneable class/interface.
 
-*   The rule `UnusedImports` (ruleset `java-imports`) has been replaced by the typeresolution-based
+*   The Java rule `UnusedImports` (category `bestpractices`, former ruleset `java-imports`) has been
+    replaced by the typeresolution-based
     implementation and is now able to detect unused on-demand imports.
 
-*   The rule `SignatureDeclareThrowsException` (ruleset 'java-strictexception') has been replaced by the
+*   The Java rule `SignatureDeclareThrowsException` (category `design`, former ruleset 'java-strictexception')
+    has been replaced by the
     typeresolution-based implementation. It has a new property `IgnoreJUnitCompletely`, which allows all
-    methods in a JUnit testcase to throws exceptions.
+    methods in a JUnit testcase to throw exceptions.
+
+*   The Java rule `NPathComplexity` (category `design`, former ruleset `java-codesize`) has been revamped
+    to use the new metrics framework.
+    Its report threshold can be configured via the property `reportLevel`, which replaces the now
+    deprecated property `minimum`.
+
+*   The Java rule `CyclomaticComplexity` (category `design`, former ruleset `java-codesize`) has been
+    revamped to use the new metrics framework.
+    Its report threshold can be configured via the properties `classReportLevel` and `methodReportLevel` separately.
+    The old property `reportLevel`, which configured the level for both total class and method complexity,
+    is deprecated.
+
+*   The Java rule `CommentRequired` (category `documentation`, former ruleset `java-comments`)
+    has been revamped to include 2 new properties:
+    *   `accessorCommentRequirement` to specify documentation requirements for getters and setters (default to `ignored`)
+    *   `methodWithOverrideCommentRequirement` to specify documentation requirements for methods annotated with `@Override` (default to `ignored`)
+
+*   The Java rule `EmptyCatchBlock` (category `errorprone`, former ruleset `java-empty`) has been changed to ignore
+    exceptions named `ignore` or `expected` by default. You can still override this behaviour by setting the `allowExceptionNameRegex` property.
 
 #### Deprecated Rules
 
-*   The rules `NcssConstructorCount`, `NcssMethodCount`, and `NcssTypeCount` (ruleset `java-codesize`) have been
-    deprecated. They will be replaced by the new rule `NcssCount` in the same ruleset.
+*   The Java rules `NcssConstructorCount`, `NcssMethodCount`, and `NcssTypeCount` (ruleset `java-codesize`) have been
+    deprecated. They will be replaced by the new rule `NcssCount` in the category `design`.
 
-*   The rule `LooseCoupling` in ruleset `java-typeresolution` is deprecated. Use the rule with the same name
-    from ruleset `java-coupling` instead.
+*   The Java rule `LooseCoupling` in ruleset `java-typeresolution` is deprecated. Use the rule with the same name
+    from category `bestpractices` instead.
 
-*   The rule `CloneMethodMustImplementCloneable` in ruleset `java-typeresolution` is deprecated. Use the rule with
-    the same name from ruleset `java-clone` instead.
+*   The Java rule `CloneMethodMustImplementCloneable` in ruleset `java-typeresolution` is deprecated. Use the rule with
+    the same name from category `errorprone` instead.
 
-*   The rule `UnusedImports` in ruleset `java-typeresolution` is deprecated. Use the rule with
-    the same name from ruleset `java-imports` instead.
+*   The Java rule `UnusedImports` in ruleset `java-typeresolution` is deprecated. Use the rule with
+    the same name from category `bestpractices` instead.
 
-*   The rule `SignatureDeclareThrowsException` in ruleset `java-typeresolution` is deprecated. Use the rule
-    with the same name from ruleset `java-strictexception` instead.
+*   The Java rule `SignatureDeclareThrowsException` in ruleset `java-typeresolution` is deprecated. Use the rule
+    with the same name from category `design` instead.
+
+*   The Java rule `EmptyStaticInitializer` in ruleset `java-empty` is deprecated. Use the rule `EmptyInitializer`
+    from the category `errorprone`, which covers both static and non-static empty initializers.`
 
 #### Removed Rules
 
-*   The deprecated rule `UseSingleton` has been removed from the ruleset `java-design`. The rule has been renamed
-    long time ago to `UseUtilityClass`.
+*   The deprecated Java rule `UseSingleton` has been removed from the ruleset `java-design`. The rule has been renamed
+    long time ago to `UseUtilityClass` (category `design`).
 
 #### Java Symbol Table
 
@@ -256,6 +319,7 @@ a warning will now be produced suggesting users to adopt it for better performan
 ### Fixed Issues
 
 *   all
+    *   [#394](https://github.com/pmd/pmd/issues/394): \[core] PMD exclude rules are failing with IllegalArgumentException with non-default minimumPriority
     *   [#532](https://github.com/pmd/pmd/issues/532): \[core] security concerns on URL-based rulesets
     *   [#538](https://github.com/pmd/pmd/issues/538): \[core] Provide an XML Schema for XML reports
     *   [#600](https://github.com/pmd/pmd/issues/600): \[core] Nullpointer while creating cache File
@@ -283,9 +347,11 @@ a warning will now be produced suggesting users to adopt it for better performan
     *   [#534](https://github.com/pmd/pmd/issues/534): \[java] NPE in MethodTypeResolution for static methods
     *   [#603](https://github.com/pmd/pmd/issues/603): \[core] incremental analysis should invalidate upon Java rule plugin changes
     *   [#650](https://github.com/pmd/pmd/issues/650): \[java] ProcesingError analyzing code under 5.8.1
+    *   [#732](https://github.com/pmd/pmd/issues/732): \[java] LinkageError with aux classpath
 *   java-basic
     *   [#565](https://github.com/pmd/pmd/pull/565): \[java] False negative on DontCallThreadRun when extending Thread
 *   java-comments
+    *   [#396](https://github.com/pmd/pmd/issues/396): \[java] CommentRequired: add properties to ignore @Override method and getters / setters
     *   [#536](https://github.com/pmd/pmd/issues/536): \[java] CommentDefaultAccessModifierRule ignores constructors
 *   java-controversial
     *   [#388](https://github.com/pmd/pmd/issues/388): \[java] controversial.AvoidLiteralsInIfCondition 0.0 false positive
@@ -295,6 +361,8 @@ a warning will now be produced suggesting users to adopt it for better performan
     *   [#357](https://github.com/pmd/pmd/issues/357): \[java] UncommentedEmptyConstructor consider annotations on Constructor
     *   [#438](https://github.com/pmd/pmd/issues/438): \[java] Relax AbstractClassWithoutAnyMethod when class is annotated by @AutoValue
     *   [#590](https://github.com/pmd/pmd/issues/590): \[java] False positive on MissingStaticMethodInNonInstantiatableClass
+*    java-logging
+    *   [#721](https://github.com/pmd/pmd/issues/721): \[java] NPE in PMD 5.8.1 InvalidSlf4jMessageFormat
 *   java-sunsecure
     *   [#468](https://github.com/pmd/pmd/issues/468): \[java] ArrayIsStoredDirectly false positive
 *   java-unusedcode
@@ -363,6 +431,48 @@ a warning will now be produced suggesting users to adopt it for better performan
 *   The class `net.sourceforge.pmd.lang.java.typeresolution.typedefinition.JavaTypeDefinition` is now abstract, and has been enhanced
     to provide several new methods.
 
+*   The constructor of `net.sourceforge.pmd.RuleSetFactory`, which took a `ClassLoader` is deprecated.
+    Please use the alternative constructor with the `net.sourceforge.pmd.util.ResourceLoader` instead.
+
+*   The following GUI related classes have been deprecated and will be removed in PMD 7.0.0.
+    The tool "bgastviewer", that could be started via the script `bgastviewer.bat` or `run.sh bgastviewer` is
+    deprecated, too, and will be removed in PMD 7.0.0.
+    Both the "old designer" and "bgastviewer" are replaced by the [New Rule Designer](#new-rule-designer).
+    *   `net.sourceforge.pmd.util.designer.CodeEditorTextPane`
+    *   `net.sourceforge.pmd.util.designer.CreateXMLRulePanel`
+    *   `net.sourceforge.pmd.util.designer.Designer`
+    *   `net.sourceforge.pmd.util.designer.DFAPanel`
+    *   `net.sourceforge.pmd.util.designer.LineGetter`
+    *   `net.sourceforge.pmd.util.viewer.Viewer`
+    *   `net.sourceforge.pmd.util.viewer.gui.ActionCommands`
+    *   `net.sourceforge.pmd.util.viewer.gui.ASTPanel`
+    *   `net.sourceforge.pmd.util.viewer.gui.EvaluationResultsPanel`
+    *   `net.sourceforge.pmd.util.viewer.gui.MainFrame`
+    *   `net.sourceforge.pmd.util.viewer.gui.ParseExceptionHandler`
+    *   `net.sourceforge.pmd.util.viewer.gui.SourceCodePanel`
+    *   `net.sourceforge.pmd.util.viewer.gui.XPathPanel`
+    *   `net.sourceforge.pmd.util.viewer.gui.menu.ASTNodePopupMenu`
+    *   `net.sourceforge.pmd.util.viewer.gui.menu.AttributesSubMenu`
+    *   `net.sourceforge.pmd.util.viewer.gui.menu.SimpleNodeSubMenu`
+    *   `net.sourceforge.pmd.util.viewer.gui.menu.XPathFragmentAddingItem`
+    *   `net.sourceforge.pmd.util.viewer.model.ASTModel`
+    *   `net.sourceforge.pmd.util.viewer.model.AttributeToolkit`
+    *   `net.sourceforge.pmd.util.viewer.model.SimpleNodeTreeNodeAdapter`
+    *   `net.sourceforge.pmd.util.viewer.model.ViewerModel`
+    *   `net.sourceforge.pmd.util.viewer.model.ViewerModelEvent`
+    *   `net.sourceforge.pmd.util.viewer.model.ViewerModelListener`
+    *   `net.sourceforge.pmd.util.viewer.util.NLS`
+
+*   The following methods in `net.sourceforge.pmd.Rule` have been deprecated and will be removed in PMD 7.0.0.
+    All methods are replaced by their bean-like counterparts
+    *   `void setUsesDFA()`. Use `void setDfa(boolean)` instead.
+    *   `boolean usesDFA()`. Use `boolean isDfa()` instead.
+    *   `void setUsesTypeResolution()`. Use `void setTypeResolution(boolean)` instead.
+    *   `boolean usesTypeResolution()`. Use `boolean isTypeResolution()` instead.
+    *   `void setUsesMultifile()`. Use `void setMultifile(boolean)` instead.
+    *   `boolean usesMultifile()`. Use `boolean isMultifile()` instead.
+    *   `boolean usesRuleChain()`. Use `boolean isRuleChain()` instead.
+
 ### External Contributions
 
 *   [#287](https://github.com/pmd/pmd/pull/287): \[apex] Make Rule suppression work - [Robert Sösemann](https://github.com/up2go-rsoesemann)
@@ -430,4 +540,14 @@ a warning will now be produced suggesting users to adopt it for better performan
 *   [#679](https://github.com/pmd/pmd/pull/679): \[core] Token scheme generalization - [Gonzalo Ibars Ingman](https://github.com/gibarsin)
 *   [#694](https://github.com/pmd/pmd/pull/694): \[core] Add minor fixes to root pom - [Matias Comercio](https://github.com/MatiasComercio)
 *   [#696](https://github.com/pmd/pmd/pull/696): \[core] Add remove operation over nodes - [Matias Comercio](https://github.com/MatiasComercio)
-
+*   [#711](https://github.com/pmd/pmd/pull/711): \[ui] New rule designer - [Clément Fournier](https://github.com/oowekyala)
+*   [#722](https://github.com/pmd/pmd/pull/722): \[java] Move NPathComplexity from metrics to design - [Clément Fournier](https://github.com/oowekyala)
+*   [#723](https://github.com/pmd/pmd/pull/723): \[core] Rule factory refactoring - [Clément Fournier](https://github.com/oowekyala)
+*   [#726](https://github.com/pmd/pmd/pull/726): \[java] Fix issue #721 (NPE in InvalidSlf4jMessageFormat) - [Clément Fournier](https://github.com/oowekyala)
+*   [#727](https://github.com/pmd/pmd/pull/727): \[core] Fix #725: numeric property descriptors now check their default value - [Clément Fournier](https://github.com/oowekyala)
+*   [#733](https://github.com/pmd/pmd/pull/733): \[java] Some improvements to CommentRequired - [Clément Fournier](https://github.com/oowekyala)
+*   [#734](https://github.com/pmd/pmd/pull/734): \[java] Move CyclomaticComplexity from metrics to design - [Clément Fournier](https://github.com/oowekyala)
+*   [#737](https://github.com/pmd/pmd/pull/737): \[doc] Fix NPathComplexity documentation bad rendering - [Clément Fournier](https://github.com/oowekyala)
+*   [#744](https://github.com/pmd/pmd/pull/744): \[doc] Added Apex to supported languages - [Michał Kuliński](https://github.com/coola)
+*   [#746](https://github.com/pmd/pmd/pull/746): \[doc] Fix typo in incremental analysis log message - [Clément Fournier](https://github.com/oowekyala)
+*   [#749](https://github.com/pmd/pmd/pull/749): \[doc] Update the documentation for properties - [Clément Fournier](https://github.com/oowekyala)

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test-data
+        xmlns="http://pmd.sourceforge.net/rule-tests"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://pmd.sourceforge.net/rule-tests http://pmd.sourceforge.net/rule-tests_1_0_0.xsd">
+    <test-code>
+        <description><![CDATA[
+Non-Empty catch, block
+     ]]></description>
+        <expected-problems>0</expected-problems>
+        <code><![CDATA[
+try {
+    addAlert("Welcome guest!");
+}
+catch(err) {
+    document.getElementById("demo").innerHTML = err.message;
+    return true;
+}
+     ]]></code>
+        <source-type>ecmascript 3</source-type>
+    </test-code>
+    <test-code>
+        <description><![CDATA[
+Empty catch, block
+     ]]></description>
+        <expected-problems>1</expected-problems>
+        <code><![CDATA[
+try {
+    addAlert("Welcome guest!");
+}
+catch(err) {
+}
+     ]]></code>
+        <source-type>ecmascript 3</source-type>
+    </test-code>
+
+    <test-code>
+        <description><![CDATA[
+Correct from sourcecode, non empty catch block
+     ]]></description>
+        <expected-problems>0</expected-problems>
+        <code><![CDATA[
+try {
+    var response;
+    var responseType = ( this.responseType || '' ).toLowerCase();
+
+    // Wait for next browser tick like standard XMLHttpRequest event dispatching does
+    window.setTimeout( function () {
+} catch ( error ) {
+
+    // Wait for next browser tick like standard XMLHttpRequest event dispatching does
+    window.setTimeout( function () {
+
+}
+     ]]></code>
+        <source-type>ecmascript 3</source-type>
+    </test-code>
+</test-data>

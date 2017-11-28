@@ -6,11 +6,9 @@
          xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
     <description>
         The Empty Code ruleset contains rules that find empty statements (so far for If Statements and Catch Blocks)
-
     </description>
 
-    <rule ref="category/ecmascript/emptycode.xml/EmptyIfStmt"/>
-    <rule ref="category/ecmascript/emptycode.xml/EmptyCatchBlock"/>
-
+    <rule ref="category/ecmascript/errorprone.xml/EmptyIfStmt"/>
+    <rule ref="category/ecmascript/errorprone.xml/EmptyCatchBlock"/>
 
 </ruleset>

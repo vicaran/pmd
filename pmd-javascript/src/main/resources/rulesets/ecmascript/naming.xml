@@ -6,11 +6,10 @@
          xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
     <description>
         The Naming Ruleset contains rules regarding preferred usage of names and identifiers.
-
     </description>
 
-    <rule ref="category/ecmascript/codestyle.xml/ShortVariable"/>
-    <rule ref="category/ecmascript/codestyle.xml/LongVariable"/>
-
+    <rule ref="category/ecmascript/codestyle.xml/AvoidShortVariables"/>
+    <rule ref="category/ecmascript/codestyle.xml/AvoidLongVariables"/>
+    <rule ref="category/ecmascript/codestyle.xml/AvoidShortFunctionNames"/>
 
 </ruleset>

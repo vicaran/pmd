@@ -5,7 +5,7 @@ permalink: pmd_rules_ecmascript_codestyle.html
 folder: pmd/rules/ecmascript
 sidebaractiveurl: /pmd_rules_ecmascript.html
 editmepath: ../pmd-javascript/src/main/resources/category/ecmascript/codestyle.xml
-keywords: Code Style, AssignmentInOperand, AvoidDollarSigns, ForLoopsMustUseBraces, FunctionNamingConventions, IfElseStmtsMustUseBraces, IfStmtsMustUseBraces, NoElseReturn, UnnecessaryBlock, UnnecessaryParentheses, UnreachableCode, WhileLoopsMustUseBraces
+keywords: Code Style, AssignmentInOperand, ForLoopsMustUseBraces, IfElseStmtsMustUseBraces, IfStmtsMustUseBraces, NoElseReturn, UnnecessaryBlock, UnnecessaryParentheses, UnreachableCode, WhileLoopsMustUseBraces, AvoidShortVariables, AvoidLongVariables, AvoidShortFunctionNames
 ---
 ## AssignmentInOperand
 
@@ -60,20 +60,24 @@ function getX() {
 <rule ref="category/ecmascript/codestyle.xml/AssignmentInOperand" />
 ```
 
-## AvoidDollarSigns
+## AvoidLongVariables
 
-**Since:** PMD 1.5
+**Since:** PMD 0.1
 
-**Priority:** Medium (3)
+**Priority:** High (1)
 
-Avoid using dollar signs in variable/functions names.
+Fields, local variables, or parameter names that are very long are not helpful to the reader.
 
-**This rule is defined by the following Java class:** [net.sourceforge.pmd.lang.ecmascript.rule.codestyle.AvoidDollarSignsRule](https://github.com/pmd/pmd/blob/master/pmd-javascript/src/main/java/net/sourceforge/pmd/lang/ecmascript/rule/codestyle/AvoidDollarSignsRule.java)
+**This rule is defined by the following Java class:** [net.sourceforge.pmd.lang.ecmascript.rule.codestyle.AvoidLongVariablesRule](https://github.com/pmd/pmd/blob/master/pmd-javascript/src/main/java/net/sourceforge/pmd/lang/ecmascript/rule/codestyle/AvoidLongVariablesRule.java)
 
 **Example(s):**
 
 ``` javascript
-function ko$o() {  // not a recommended name
+function Something(veryLongInputParameter) {                        // formal arg - too long
+    var veryLongLocalVariableName = 15;                                 // local var - too long
+    for (Integer veryLongNameForAnIndex : veryLongInputParameter) {             //  A violation even inside 'for-each' loop - too long
+        veryLongLocalVariableName += veryLongNameForAnIndex;
+    }
 }
 ```
 
@@ -87,7 +91,75 @@ function ko$o() {  // not a recommended name
 
 **Use this rule by referencing it:**
 ``` xml
-<rule ref="category/ecmascript/codestyle.xml/AvoidDollarSigns" />
+<rule ref="category/ecmascript/codestyle.xml/AvoidLongVariables" />
+```
+
+## AvoidShortFunctionNames
+
+**Since:** PMD 0.1
+
+**Priority:** High (1)
+
+Fields, local variables, or parameter names that are very long are not helpful to the reader.
+
+**This rule is defined by the following Java class:** [net.sourceforge.pmd.lang.ecmascript.rule.codestyle.AvoidShortFunctionNamesRule](https://github.com/pmd/pmd/blob/master/pmd-javascript/src/main/java/net/sourceforge/pmd/lang/ecmascript/rule/codestyle/AvoidShortFunctionNamesRule.java)
+
+**Example(s):**
+
+``` javascript
+function Something(veryLongInputParameter) {                        // formal arg - too long
+    var veryLongLocalVariableName = 15;                                 // local var - too long
+    for (Integer veryLongNameForAnIndex : veryLongInputParameter) {             //  A violation even inside 'for-each' loop - too long
+        veryLongLocalVariableName += veryLongNameForAnIndex;
+    }
+}
+```
+
+**This rule has the following properties:**
+
+|Name|Default Value|Description|
+|----|-------------|-----------|
+|rhinoLanguageVersion|VERSION_DEFAULT|Specifies the Rhino Language Version to use for parsing.  Defaults to Rhino default.|
+|recordingLocalJsDocComments|true|Specifies that JsDoc comments are produced in the AST.|
+|recordingComments|true|Specifies that comments are produced in the AST.|
+
+**Use this rule by referencing it:**
+``` xml
+<rule ref="category/ecmascript/codestyle.xml/AvoidShortFunctionNames" />
+```
+
+## AvoidShortVariables
+
+**Since:** PMD 0.1
+
+**Priority:** High (1)
+
+Fields, local variables, or parameter names that are very short are not helpful to the reader.
+
+**This rule is defined by the following Java class:** [net.sourceforge.pmd.lang.ecmascript.rule.codestyle.AvoidShortVariablesRule](https://github.com/pmd/pmd/blob/master/pmd-javascript/src/main/java/net/sourceforge/pmd/lang/ecmascript/rule/codestyle/AvoidShortVariablesRule.java)
+
+**Example(s):**
+
+``` javascript
+function Something(as) {                        // formal arg - too short
+    var q = 15;                                 // local var - too short
+    for (Integer i : numbers) {             // not a violation (inside 'for-each' loop)
+        r += q;
+    }
+}
+```
+
+**This rule has the following properties:**
+
+|Name|Default Value|Description|
+|----|-------------|-----------|
+|rhinoLanguageVersion|VERSION_DEFAULT|Specifies the Rhino Language Version to use for parsing.  Defaults to Rhino default.|
+|recordingLocalJsDocComments|true|Specifies that JsDoc comments are produced in the AST.|
+|recordingComments|true|Specifies that comments are produced in the AST.|
+
+**Use this rule by referencing it:**
+``` xml
+<rule ref="category/ecmascript/codestyle.xml/AvoidShortVariables" />
 ```
 
 ## ForLoopsMustUseBraces
@@ -120,36 +192,6 @@ for (var i = 0; i < 42; i++)
 **Use this rule by referencing it:**
 ``` xml
 <rule ref="category/ecmascript/codestyle.xml/ForLoopsMustUseBraces" />
-```
-
-## FunctionNamingConventions
-
-**Since:** PMD 1.2
-
-**Priority:** High (1)
-
-Function names should always begin with a lower case character, and should not contain underscores.
-
-**This rule is defined by the following Java class:** [net.sourceforge.pmd.lang.ecmascript.rule.codestyle.FunctionNamingConventionsRule](https://github.com/pmd/pmd/blob/master/pmd-javascript/src/main/java/net/sourceforge/pmd/lang/ecmascript/rule/codestyle/FunctionNamingConventionsRule.java)
-
-**Example(s):**
-
-``` javascript
-function getData() {
-}
-```
-
-**This rule has the following properties:**
-
-|Name|Default Value|Description|
-|----|-------------|-----------|
-|rhinoLanguageVersion|VERSION_DEFAULT|Specifies the Rhino Language Version to use for parsing.  Defaults to Rhino default.|
-|recordingLocalJsDocComments|true|Specifies that JsDoc comments are produced in the AST.|
-|recordingComments|true|Specifies that comments are produced in the AST.|
-
-**Use this rule by referencing it:**
-``` xml
-<rule ref="category/ecmascript/codestyle.xml/FunctionNamingConventions" />
 ```
 
 ## IfElseStmtsMustUseBraces

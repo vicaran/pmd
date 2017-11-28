@@ -21,7 +21,8 @@ public class CodeStyleRulesTest extends SimpleAggregatorTst {
         addRule(RULESET, "UnnecessaryParentheses");
         addRule(RULESET, "UnreachableCode");
         addRule(RULESET, "WhileLoopsMustUseBraces");
-        addRule(RULESET, "ShortVariable");
-        addRule(RULESET, "LongVariable");
+        addRule(RULESET, "AvoidShortVariables");
+        addRule(RULESET, "AvoidLongVariables");
+        addRule(RULESET, "AvoidShortFunctionNames");
     }
 }

@@ -6,7 +6,7 @@
          xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
 
     <description>
-        Rules to detect constructs that are either broken, extremely confusing or prone to runtime errors.
+Rules to detect constructs that are either broken, extremely confusing or prone to runtime errors.
     </description>
 
     <rule name="AvoidTrailingComma"
@@ -16,27 +16,24 @@
           class="net.sourceforge.pmd.lang.rule.XPathRule"
           externalInfoUrl="${pmd.website.baseurl}/pmd_rules_ecmascript_errorprone.html#avoidtrailingcomma">
         <description>
-            This rule helps improve code portability due to differences in browser treatment of trailing commas in
-            object or array literals.
+This rule helps improve code portability due to differences in browser treatment of trailing commas in object or array literals.
         </description>
         <priority>1</priority>
         <properties>
             <property name="xpath">
                 <value>
-                    <![CDATA[
+<![CDATA[
 //ObjectLiteral[$allowObjectLiteral = "false" and @TrailingComma = 'true']
 |
 //ArrayLiteral[$allowArrayLiteral = "false" and @TrailingComma = 'true']
 ]]>
                 </value>
             </property>
-            <property name="allowObjectLiteral" type="Boolean" value="false"
-                      description="Allow a trailing comma within an object literal"/>
-            <property name="allowArrayLiteral" type="Boolean" value="false"
-                      description="Allow a trailing comma within an array literal"/>
+            <property name="allowObjectLiteral" type="Boolean" value="false" description="Allow a trailing comma within an object literal" />
+            <property name="allowArrayLiteral" type="Boolean" value="false" description="Allow a trailing comma within an array literal" />
         </properties>
         <example>
-            <![CDATA[
+<![CDATA[
 function(arg) {
     var obj1 = { a : 1 };   // Ok
     var arr1 = [ 1, 2 ];    // Ok
@@ -55,14 +52,14 @@ function(arg) {
           class="net.sourceforge.pmd.lang.rule.XPathRule"
           externalInfoUrl="${pmd.website.baseurl}/pmd_rules_ecmascript_errorprone.html#equalcomparison">
         <description>
-            Using == in condition may lead to unexpected results, as the variables are automatically casted to be of the
-            same type. The === operator avoids the casting.
+Using == in condition may lead to unexpected results, as the variables are automatically casted to be of the
+same type. The === operator avoids the casting.
         </description>
         <priority>3</priority>
         <properties>
             <property name="xpath">
                 <value>
-                    <![CDATA[
+<![CDATA[
 //InfixExpression[(@Image = "==" or @Image = "!=")
   and
  (child::KeywordLiteral[@Image = "true" or @Image = "false"]
@@ -74,7 +71,7 @@ function(arg) {
             </property>
         </properties>
         <example>
-            <![CDATA[
+<![CDATA[
 // Ok
 if (someVar === true) {
   ...
@@ -102,14 +99,14 @@ if (someVar != 3) {
           class="net.sourceforge.pmd.lang.rule.XPathRule"
           externalInfoUrl="${pmd.website.baseurl}/pmd_rules_ecmascript_errorprone.html#innaccuratenumericliteral">
         <description>
-            The numeric literal will have a different value at runtime, which can happen if you provide too much
-            precision in a floating point number. This may result in numeric calculations being in error.
+The numeric literal will have a different value at runtime, which can happen if you provide too much
+precision in a floating point number.  This may result in numeric calculations being in error.
         </description>
         <priority>2</priority>
         <properties>
             <property name="xpath">
                 <value>
-                    <![CDATA[
+<![CDATA[
 //NumberLiteral[
     @Image != @Number
     and translate(@Image, "e", "E") != @Number
@@ -120,7 +117,7 @@ if (someVar != 3) {
             </property>
         </properties>
         <example>
-            <![CDATA[
+<![CDATA[
 var a = 9; // Ok
 var b = 999999999999999; // Ok
 var c = 999999999999999999999; // Not good
@@ -128,6 +125,52 @@ var w = 1.12e-4; // Ok
 var x = 1.12; // Ok
 var y = 1.1234567890123; // Ok
 var z = 1.12345678901234567; // Not good
+]]>
+        </example>
+    </rule>
+
+    <rule name="EmptyIfStmt"
+          language="ecmascript"
+          since="0.1"
+          message="Avoid empty 'if' statements."
+          class="net.sourceforge.pmd.lang.ecmascript.rule.errorprone.EmptyIfStmtRule"
+          externalInfoUrl="${pmd.website.baseurl}/pmd_rules_ecmascript_errorprone.html#emptyifstmt">
+        <description>
+            Empty If Statement finds instances where a condition is checked but nothing is done about it.
+        </description>
+        <priority>1</priority>
+        <example>
+            <![CDATA[
+function Foo(x){
+  if (x == 0) {
+   // empty!
+  }
+}
+]]>
+        </example>
+    </rule>
+
+    <rule name="EmptyCatchBlock"
+          language="ecmascript"
+          since="0.1"
+          message="Avoid empty 'catch' statements."
+          class="net.sourceforge.pmd.lang.ecmascript.rule.errorprone.EmptyCatchBlockRule"
+          externalInfoUrl="${pmd.website.baseurl}/pmd_rules_ecmascript_errorprone.html#emptycatchblock">
+        <description>
+            Empty Catch Block finds instances where an exception is caught, but nothing is done.
+            In most circumstances, this swallows an exception which should either be acted on or reported.
+        </description>
+        <priority>1</priority>
+        <example>
+            <![CDATA[
+function Foo(x){
+    try {
+        adddlert("Hello, World!");
+    }
+    catch(err) {
+        // empty!
+    }
+}
 ]]>
         </example>
     </rule>

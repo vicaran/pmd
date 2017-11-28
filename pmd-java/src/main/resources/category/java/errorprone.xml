@@ -1379,7 +1379,7 @@ or reported.
                 </value>
             </property>
             <property name="allowCommentedBlocks" type="Boolean" description="Empty blocks containing comments will be skipped" value="false"/>
-            <property name="allowExceptionNameRegex" type="String" description="Empty blocks catching exceptions with names matching this regular expression will be skipped" value="^$"/>
+            <property name="allowExceptionNameRegex" type="String" description="Empty blocks catching exceptions with names matching this regular expression will be skipped" value="^(ignored|expected)$"/>
         </properties>
         <example>
 <![CDATA[
@@ -1544,32 +1544,6 @@ public class Foo {
       {} // But remove this.
    }
 
-}
-]]>
-        </example>
-    </rule>
-
-    <rule name="EmptyStaticInitializer"
-          language="java"
-          since="1.5"
-          message="Empty static initializer was found"
-          class="net.sourceforge.pmd.lang.rule.XPathRule"
-          externalInfoUrl="${pmd.website.baseurl}/pmd_rules_java_errorprone.html#emptystaticinitializer">
-        <description>
-An empty static initializer serve no purpose and should be removed.
-        </description>
-        <priority>3</priority>
-        <properties>
-            <property name="xpath">
-                <value>//Initializer[@Static='true']/Block[count(*)=0]</value>
-            </property>
-        </properties>
-        <example>
-<![CDATA[
-public class Foo {
-    static {
-        // empty
-    }
 }
 ]]>
         </example>

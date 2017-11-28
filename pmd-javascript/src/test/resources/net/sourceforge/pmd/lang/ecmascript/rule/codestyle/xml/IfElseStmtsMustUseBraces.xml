@@ -120,9 +120,9 @@ Bad, if/else if/else, with if and else if and else missing braces
         <code><![CDATA[
 if (true)
    x=2;
-else if (true)
-   x = 3;
-else
+else if (true) 
+   x = 3; 
+else 
    y=4;
      ]]></code>
         <source-type>ecmascript 3</source-type>

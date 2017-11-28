@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test-data
+        xmlns="http://pmd.sourceforge.net/rule-tests"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://pmd.sourceforge.net/rule-tests http://pmd.sourceforge.net/rule-tests_1_0_0.xsd">
+
+    <test-code>
+        <description><![CDATA[
+Long Variable declaration in LongVariable test
+     ]]></description>
+        <expected-problems>1</expected-problems>
+        <code><![CDATA[
+var aVeryLongVariableInt = 3;
+     ]]></code>
+        <source-type>ecmascript 3</source-type>
+    </test-code>
+
+    <test-code>
+        <description><![CDATA[
+Short Variable declaration in LongVariable test
+     ]]></description>
+        <expected-problems>0</expected-problems>
+        <code><![CDATA[
+var thatsOkay = 3;
+     ]]></code>
+        <source-type>ecmascript 3</source-type>
+    </test-code>
+
+    <test-code>
+        <description><![CDATA[
+Long Variable declaration in For Loop in LongVariable test
+     ]]></description>
+        <expected-problems>1</expected-problems>
+        <code><![CDATA[
+for(var aReallyLongVariableInteger = 0; aReallyLongVariableInteger < 3; aReallyLongVariableInteger++){
+	console.log(aReallyLongVariableInteger);
+}
+     ]]></code>
+        <source-type>ecmascript 3</source-type>
+    </test-code>
+</test-data>

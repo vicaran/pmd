@@ -5,7 +5,7 @@ permalink: pmd_rules_ecmascript_errorprone.html
 folder: pmd/rules/ecmascript
 sidebaractiveurl: /pmd_rules_ecmascript.html
 editmepath: ../pmd-javascript/src/main/resources/category/ecmascript/errorprone.xml
-keywords: Error Prone, AvoidTrailingComma, EqualComparison, InnaccurateNumericLiteral, ReturnFromFinallyBlock
+keywords: Error Prone, AvoidTrailingComma, EqualComparison, InnaccurateNumericLiteral, EmptyIfStmt, EmptyCatchBlock
 ---
 ## AvoidTrailingComma
 
@@ -43,6 +43,76 @@ function(arg) {
 **Use this rule by referencing it:**
 ``` xml
 <rule ref="category/ecmascript/errorprone.xml/AvoidTrailingComma" />
+```
+
+## EmptyCatchBlock
+
+**Since:** PMD 0.1
+
+**Priority:** High (1)
+
+Empty Catch Block finds instances where an exception is caught, but nothing is done.
+In most circumstances, this swallows an exception which should either be acted on or reported.
+
+**This rule is defined by the following Java class:** [net.sourceforge.pmd.lang.ecmascript.rule.errorprone.EmptyCatchBlockRule](https://github.com/pmd/pmd/blob/master/pmd-javascript/src/main/java/net/sourceforge/pmd/lang/ecmascript/rule/errorprone/EmptyCatchBlockRule.java)
+
+**Example(s):**
+
+``` javascript
+function Foo(x){
+    try {
+        adddlert("Hello, World!");
+    }
+    catch(err) {
+        // empty!
+    }
+}
+```
+
+**This rule has the following properties:**
+
+|Name|Default Value|Description|
+|----|-------------|-----------|
+|rhinoLanguageVersion|VERSION_DEFAULT|Specifies the Rhino Language Version to use for parsing.  Defaults to Rhino default.|
+|recordingLocalJsDocComments|true|Specifies that JsDoc comments are produced in the AST.|
+|recordingComments|true|Specifies that comments are produced in the AST.|
+
+**Use this rule by referencing it:**
+``` xml
+<rule ref="category/ecmascript/errorprone.xml/EmptyCatchBlock" />
+```
+
+## EmptyIfStmt
+
+**Since:** PMD 0.1
+
+**Priority:** High (1)
+
+Empty If Statement finds instances where a condition is checked but nothing is done about it.
+
+**This rule is defined by the following Java class:** [net.sourceforge.pmd.lang.ecmascript.rule.errorprone.EmptyIfStmtRule](https://github.com/pmd/pmd/blob/master/pmd-javascript/src/main/java/net/sourceforge/pmd/lang/ecmascript/rule/errorprone/EmptyIfStmtRule.java)
+
+**Example(s):**
+
+``` javascript
+function Foo(x){
+  if (x == 0) {
+   // empty!
+  }
+}
+```
+
+**This rule has the following properties:**
+
+|Name|Default Value|Description|
+|----|-------------|-----------|
+|rhinoLanguageVersion|VERSION_DEFAULT|Specifies the Rhino Language Version to use for parsing.  Defaults to Rhino default.|
+|recordingLocalJsDocComments|true|Specifies that JsDoc comments are produced in the AST.|
+|recordingComments|true|Specifies that comments are produced in the AST.|
+
+**Use this rule by referencing it:**
+``` xml
+<rule ref="category/ecmascript/errorprone.xml/EmptyIfStmt" />
 ```
 
 ## EqualComparison
@@ -121,44 +191,5 @@ var z = 1.12345678901234567; // Not good
 **Use this rule by referencing it:**
 ``` xml
 <rule ref="category/ecmascript/errorprone.xml/InnaccurateNumericLiteral" />
-```
-
-## ReturnFromFinallyBlock
-
-**Since:** PMD 5.0
-
-**Priority:** Medium High (2)
-
-Avoid returning from a finally block, this can discard exceptions.
-
-**This rule is defined by the following Java class:** [net.sourceforge.pmd.lang.ecmascript.rule.errorprone.ReturnFromFinallyBlockRule](https://github.com/pmd/pmd/blob/master/pmd-javascript/src/main/java/net/sourceforge/pmd/lang/ecmascript/rule/errorprone/ReturnFromFinallyBlockRule.java)
-
-**Example(s):**
-
-``` javascript
-// We expect this function to return 1;
-(() => {
-    try {
-        return 1; // 1 is returned but suspended until finally block ends
-    } catch(err) {
-        return 2;
-    } finally {
-        return 3; // 3 is returned before 1, which we did not expect
-    }
-})();
-// > 3
-```
-
-**This rule has the following properties:**
-
-|Name|Default Value|Description|
-|----|-------------|-----------|
-|rhinoLanguageVersion|VERSION_DEFAULT|Specifies the Rhino Language Version to use for parsing.  Defaults to Rhino default.|
-|recordingLocalJsDocComments|true|Specifies that JsDoc comments are produced in the AST.|
-|recordingComments|true|Specifies that comments are produced in the AST.|
-
-**Use this rule by referencing it:**
-``` xml
-<rule ref="category/ecmascript/errorprone.xml/ReturnFromFinallyBlock" />
 ```
 
